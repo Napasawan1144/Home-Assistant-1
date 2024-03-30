@@ -1,0 +1,138 @@
+esphome:
+  name: esphome-web-12a2e0
+  friendly_name: ESPHome32_ging
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "trMljRkN9rIpWVLhtNQO0gFgDTYOreRt2IHTUnjeVig="
+
+ota:
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-Web-12A2E0"
+    password: "DLz8KNWKr0MV"
+
+captive_portal:
+
+# 8 CH Relay
+switch:
+  - platform: gpio
+    name: "Switch 1"
+    pin: 25
+
+  - platform: gpio
+    name: "Switch 2"
+    pin: 26
+    
+  - platform: gpio
+    name: "Switch 3"
+    pin: 27
+    
+  - platform: gpio
+    name: "Switch 4"
+    pin: 14
+
+  - platform: gpio
+    name: "Switch 5"
+    pin: 12
+
+  - platform: gpio
+    name: "Switch 6"
+    pin: 13  
+
+  - platform: gpio
+    name: "Switch 7"
+    pin: 15
+
+  - platform: gpio
+    name: "Switch 8"
+    pin: 23
+
+# Digital Sensor
+sensor:
+  #Dht1
+  - platform: dht
+    pin: 16
+    model: DHT11
+    temperature:
+      id: dht1_temp1
+      name: "DHT11 Temperature1"
+    humidity:
+      id: dht1_humi1
+      name: "DHT11 Humidity1"
+    update_interval: 10s
+  #Dht2
+  - platform: dht
+    pin: 17
+    model: DHT11
+    temperature:
+      id: dht1_temp2
+      name: "DHT11 Temperature2"
+    humidity:
+      id: dht1_humi2
+      name: "DHT11 Humidity2"
+    update_interval: 10s
+  #Dht3
+  - platform: dht
+    pin: 18
+    model: DHT11
+    temperature:
+      id: dht1_temp3
+      name: "DHT11 Temperature3"
+    humidity:
+      id: dht1_humi3
+      name: "DHT11 Humidity3"
+    update_interval: 10s   
+
+# LED
+  - platform: adc
+    pin: 36
+    
+    filters:
+      - lambda: |-
+          if (x > 3.15) {
+            return 0;
+          } else if (x < 1.30) {
+            return 100;
+          } else {
+            return (3.15-x) / (3.15-1.30) * 100.0;
+          }
+    name: "ldr"
+    unit_of_measurement: "%"
+    update_interval: 2s
+    attenuation: auto
+    accuracy_decimals: 0
+    
+#จอ
+i2c:
+  sda: 21
+  scl: 22
+
+display:
+  - platform: lcd_pcf8574
+    dimensions: 20x4
+    address: 0x27
+    update_interval: 1s
+    id: lcd
+    lambda: |-
+      it.printf(0, 0, "T1:%.1fC", id(dht1_temp1).state);
+      it.printf(9, 0, "H1:%.1f% %", id(dht1_humi1).state);
+      it.printf(0, 1, "T2:%.1fC", id(dht1_temp2).state);
+      it.printf(9, 1, "H2:%.1f% %", id(dht1_humi2).state);
+      it.printf(0, 2, "T3:%.1fC", id(dht1_temp3).state);
+      it.printf(9, 2, "H3:%.1f% %", id(dht1_humi3).state);
